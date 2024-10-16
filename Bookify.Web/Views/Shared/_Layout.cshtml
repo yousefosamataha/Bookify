@@ -1,77 +1,95 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-    <!--begin::Head-->
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>@ViewData["Title"] - Bookify</title>
-        <!--begin::Fonts(mandatory for all pages)-->
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
-        <!--end::Fonts-->
-        <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
-        <link rel="stylesheet" href="~/assets/css/plugins.bundle.css" type="text/css" />
-        <link rel="stylesheet" href="~/assets/css/style.bundle.css" type="text/css" />
-        <!--end::Global Stylesheets Bundle-->
-        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-        <link rel="stylesheet" href="~/Bookify.Web.styles.css" asp-append-version="true" />
-    </head>
-    <!--end::Head-->
-    <!--begin::Body-->
-    <body id="kt_body" class="header-fixed header-tablet-and-mobile-fixed">
-        <!--begin::Theme mode setup on page load-->
-        <script>var defaultThemeMode = "light"; var themeMode; if (document.documentElement) { if (document.documentElement.hasAttribute("data-bs-theme-mode")) { themeMode = document.documentElement.getAttribute("data-bs-theme-mode"); } else { if (localStorage.getItem("data-bs-theme") !== null) { themeMode = localStorage.getItem("data-bs-theme"); } else { themeMode = defaultThemeMode; } } if (themeMode === "system") { themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } document.documentElement.setAttribute("data-bs-theme", themeMode); }</script>
-        <!--end::Theme mode setup on page load-->
-        <!--begin::Root-->
-        <div class="d-flex flex-column flex-root">
-            <!--begin::Page-->
-            <div class="page d-flex flex-row flex-column-fluid">
-                <!--begin::Wrapper-->
-                <div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
-                    <!--begin::Header-->
-                    <partial name="_Header" />
-                    <!--end::Header-->
-                    <!--begin::Content wrapper-->
-                    <div class="d-flex flex-column-fluid">
-                        <!--begin::Aside-->
-                        <partial name="_Aside" />
-                        <!--end::Aside-->
-                        <!--begin::Container-->
-                        <div class="d-flex flex-column flex-column-fluid container-fluid">
-                            <!--begin::Content-->
-                            <div class="content flex-column-fluid" id="kt_content">
-                                @RenderBody()
-                            </div>
-                            <!--end::Content-->
-                            <!--begin::Footer-->
-                            <partial name="_Footer" />
-                            <!--end::Footer-->
+<!--begin::Head-->
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Bookify</title>
+    <link rel="shortcut icon" href="~/favicon.ico" />
+    <!--begin::Fonts(mandatory for all pages)-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+    <!--end::Fonts-->
+    <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
+    <link rel="stylesheet" href="~/assets/css/plugins.bundle.css" type="text/css" />
+    <link rel="stylesheet" href="~/assets/css/style.bundle.css" type="text/css" />
+    <!--end::Global Stylesheets Bundle-->
+    <link rel="stylesheet" href="~/lib/animate.css/animate.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/Bookify.Web.styles.css" asp-append-version="true" /> *@
+</head>
+<!--end::Head-->
+<!--begin::Body-->
+<body id="kt_body" class="header-fixed header-tablet-and-mobile-fixed page-loading">
+    <!--begin::Theme mode setup on page load-->
+    <script>var defaultThemeMode = "light"; var themeMode; if (document.documentElement) { if (document.documentElement.hasAttribute("data-bs-theme-mode")) { themeMode = document.documentElement.getAttribute("data-bs-theme-mode"); } else { if (localStorage.getItem("data-bs-theme") !== null) { themeMode = localStorage.getItem("data-bs-theme"); } else { themeMode = defaultThemeMode; } } if (themeMode === "system") { themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } document.documentElement.setAttribute("data-bs-theme", themeMode); }</script>
+    <!--end::Theme mode setup on page load-->
+    <!--begin::Page Loading-->
+	<div class="page-loader">
+		<span class="spinner-border text-primary" role="status">
+			<span class="visually-hidden">Loading...</span>
+		</span>
+	</div>
+	<!--end::Page Loading-->
+    <!--begin::Root-->
+    <div class="d-flex flex-column flex-root">
+        <!--begin::Page-->
+        <div class="page d-flex flex-row flex-column-fluid">
+            <!--begin::Wrapper-->
+            <div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
+                <!--begin::Header-->
+                <partial name="_Header" />
+                <!--end::Header-->
+                <!--begin::Content wrapper-->
+                <div class="d-flex flex-column-fluid">
+                    <!--begin::Aside-->
+                    <partial name="_Aside" />
+                    <!--end::Aside-->
+                    <!--begin::Container-->
+                    <div class="d-flex flex-column flex-column-fluid container-fluid">
+                        <!--begin::Content-->
+                        <div class="content flex-column-fluid" id="kt_content">
+                            @RenderBody()
                         </div>
-                        <!--end::Container-->
+                        <!--end::Content-->
+                        <!--begin::Footer-->
+                        <partial name="_Footer" />
+                        <!--end::Footer-->
                     </div>
-                    <!--end::Content wrapper-->
+                    <!--end::Container-->
                 </div>
-                <!--end::Wrapper-->
+                <!--end::Content wrapper-->
             </div>
-            <!--end::Page-->
+            <!--end::Wrapper-->
         </div>
-        <!--end::Root-->
-        <!--begin::Scrolltop-->
-        <div id="kt_scrolltop" class="scrolltop" data-kt-scrolltop="true">
-            <i class="ki-duotone ki-arrow-up">
-                <span class="path1"></span>
-                <span class="path2"></span>
-            </i>
-        </div>
-        <!--end::Scrolltop-->
-        <!--begin::Javascript-->
-        <script>var hostUrl = "assets/";</script>
-        <!--begin::Global Javascript Bundle(mandatory for all pages)-->
-        <script src="~/assets/js/plugins.bundle.js"></script>
-        <script src="~/assets/js/scripts.bundle.js"></script>
-        <!--end::Global Javascript Bundle-->
-        <script src="~/js/site.js" asp-append-version="true"></script>
-        @await RenderSectionAsync("Scripts", required: false)
-        <!--end::Javascript-->
-    </body>
-    <!--end::Body-->
+        <!--end::Page-->
+    </div>
+    <!--end::Root-->
+    <!--begin::Scrolltop-->
+    <div id="kt_scrolltop" class="scrolltop" data-kt-scrolltop="true">
+        <i class="ki-duotone ki-arrow-up">
+            <span class="path1"></span>
+            <span class="path2"></span>
+        </i>
+    </div>
+    <!--end::Scrolltop-->
+    <!--begin::Message-->
+    <span id="Message" class="d-none">@TempData["Message"]</span>
+    <!--end::Message-->
+    <!--begin::Modal-->
+    <partial name="_Modal" />
+    <!--end::Modal-->
+    <!--begin::Javascript-->
+    <script>var hostUrl = "assets/";</script>
+    <!--begin::Global Javascript Bundle(mandatory for all pages)-->
+    <script src="~/assets/js/plugins.bundle.js"></script>
+    <script src="~/assets/js/scripts.bundle.js"></script>
+    <!--end::Global Javascript Bundle-->
+    <script src="~/lib/bootbox.js/bootbox.min.js"></script>
+    @await RenderSectionAsync("Plugins", required: false)
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <!--end::Javascript-->
+</body>
+<!--end::Body-->
 </html>

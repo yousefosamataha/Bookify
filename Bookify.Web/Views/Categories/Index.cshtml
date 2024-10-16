@@ -1,39 +1,103 @@
-﻿@model IEnumerable<Category>
+﻿@model IEnumerable<CategoryViewModel>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+
 @{
     ViewData["Title"] = "Categories";
 }
 
-<div class="card shadow-sm">
-    <div class="card-header">
-        <h3 class="card-title">
-            <div class="symbol symbol-40px me-4">
-                <div class="symbol-label fs-2 fw-semibold">
-                    <i class="ki-solid ki-abstract-26 text-primary fs-2"></i>
-                </div>
+@section Styles {
+    <link rel="stylesheet" href="~/assets/plugins/custom/datatables/datatables.bundle.css" />
+}
+
+<!--begin::Alert-->
+<div class="alert bg-light-primary border border-primary border-3 border-dashed d-flex justify-content-between p-5 mb-10">
+    <div class="d-flex align-items-center">
+        <div class="symbol symbol-40px me-4">
+            <div class="symbol-label fs-2 fw-semibold">
+                <i class="ki-solid ki-abstract-26 text-primary fs-2"></i>
             </div>
-            Categories
-        </h3>
-        <div class="card-toolbar">
-            <a class="btn btn-sm btn-primary" asp-controller="Categories" asp-action="Create">
-                <i class="ki-solid ki-plus fs-1"></i>
-                Add
-            </a>
         </div>
+        <h5>Categories</h5>
     </div>
-    <div class="card-body">
-        <!--begin::Alert-->
-        <div class="alert alert-dismissible bg-light-warning border border-warning border-3 border-dashed d-flex flex-column flex-sm-row p-5 mb-10">
-            <!--begin::Icon-->
-            <i class="ki-solid ki-information-5 fs-2hx text-warning me-4 mb-5 mb-sm-0"></i>
-            <!--end::Icon-->
-            <!--begin::Wrapper-->
-            <div class="d-flex flex-column align-self-center">
-                <!--begin::Content-->
-                <h5 class="mb-0">No Categories found.</h5>
-                <!--end::Content-->
-            </div>
-            <!--end::Wrapper-->
-        </div>
-        <!--end::Alert-->
+    <div>
+        <a href="JavaScript:;" class="btn btn-sm btn-success js-render-modal" data-title="Add Category" data-url="/Categories/Create">
+            <i class="ki-solid ki-plus fs-1"></i>
+            Add
+        </a>
     </div>
 </div>
+<!--end::Alert-->
+
+<div class="card shadow-sm">
+    <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+        <div class="card-title">
+            <div class="d-flex align-items-center position-relative my-1">
+                <i class="ki-solid ki-magnifier fs-1 position-absolute ms-4"></i>
+                <input type="text" data-kt-filter="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search..." />
+            </div>
+            <div id="kt_datatable_example_1_export" class="d-none"></div>
+        </div>
+        <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
+            <button type="button" class="btn btn-light-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+                <i class="ki-solid ki-exit-down fs-2"></i>
+                Export
+            </button>
+            <div id="kt_datatable_example_export_menu" class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-200px py-4" data-kt-menu="true">
+                <div class="menu-item px-3">
+                    <a href="#" class="menu-link px-3" data-kt-export="copy">
+                        Copy to clipboard
+                    </a>
+                </div>
+                <div class="menu-item px-3">
+                    <a href="#" class="menu-link px-3" data-kt-export="excel">
+                        Export as Excel
+                    </a>
+                </div>
+                <div class="menu-item px-3">
+                    <a href="#" class="menu-link px-3" data-kt-export="csv">
+                        Export as CSV
+                    </a>
+                </div>
+                <div class="menu-item px-3">
+                    <a href="#" class="menu-link px-3" data-kt-export="pdf">
+                        Export as PDF
+                    </a>
+                </div>
+            </div>
+            <div id="kt_datatable_example_buttons" class="d-none"></div>
+        </div>
+    </div>
+    <div class="card-body pt-0">
+        <div class="table-responsive">
+            <table class="table table-row-dashed table-row-gray-300 gy-7 js-datatables" data-document-title="Categories">
+                <thead>
+                    <tr class="fw-bold fs-6 text-gray-800">
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Last Updated On</th>
+                        <th class="js-no-export">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in Model)
+                    {
+                        <partial name="_CategoryRow" model="@category" />
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" name="__RequestVerificationToken" value="@antiforgery.GetAndStoreTokens(Context).RequestToken" />
+
+@* @Html.AntiForgeryToken() *@
+
+@section Plugins {
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
