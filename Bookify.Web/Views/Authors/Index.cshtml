@@ -1,8 +1,8 @@
-﻿@model IEnumerable<CategoryViewModel>
+﻿@model IEnumerable<AuthorViewModel>
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
 
 @{
-    ViewData["Title"] = "Categories";
+    ViewData["Title"] = "Authors";
 }
 
 @section Styles {
@@ -14,13 +14,13 @@
     <div class="d-flex align-items-center">
         <div class="symbol symbol-40px me-4">
             <div class="symbol-label fs-2 fw-semibold">
-                <i class="ki-solid ki-abstract-26 text-primary fs-2"></i>
+                <i class="ki-solid ki-address-book text-primary fs-2"></i>
             </div>
         </div>
-        <h5>Categories</h5>
+        <h5>Authors</h5>
     </div>
     <div>
-        <a href="JavaScript:;" class="btn btn-sm btn-success js-render-modal" data-title="Add Category" data-url="/Categories/Create">
+        <a href="JavaScript:;" class="btn btn-sm btn-success js-render-modal" data-title="Add Author" data-url="/Authors/Create">
             <i class="ki-solid ki-plus fs-1"></i>
             Add
         </a>
@@ -32,7 +32,7 @@
     <partial name="_DataTablesCardHeader" />
     <div class="card-body pt-0">
         <div class="table-responsive">
-            <table class="table table-row-dashed table-row-gray-300 gy-7 js-datatables" data-document-title="Categories">
+            <table class="table table-row-dashed table-row-gray-300 gy-7 js-datatables" data-document-title="Authors">
                 <thead>
                     <tr class="fw-bold fs-6 text-gray-800">
                         <th>Name</th>
@@ -43,9 +43,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var category in Model)
+                    @foreach (var author in Model)
                     {
-                        <partial name="_CategoryRow" model="@category" />
+                        <partial name="_AuthorRow" model="@author" />
                     }
                 </tbody>
             </table>
@@ -54,8 +54,6 @@
 </div>
 
 <input type="hidden" name="__RequestVerificationToken" value="@antiforgery.GetAndStoreTokens(Context).RequestToken" />
-
-@* @Html.AntiForgeryToken() *@
 
 @section Plugins {
     <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
