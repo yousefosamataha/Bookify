@@ -22,6 +22,13 @@
       "files": [
         "jquery.unobtrusive-ajax.min.js"
       ]
+    },
+    {
+      "library": "expressive-annotations-validate@2.7.0",
+      "destination": "wwwroot/lib/expressive-annotations-validate/",
+      "files": [
+        "expressive.annotations.validate.min.js"
+      ]
     }
   ]
 }

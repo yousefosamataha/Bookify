@@ -25,8 +25,12 @@ function showErrorMessage(message = "Something went wrong!") {
     });
 }
 
+function disableSubmitButton() {
+    $("body [type='submit']").attr("disabled", "disabled").attr("data-kt-indicator", "on");
+}
+
 function onModalBegin() {
-    $("body form :submit").attr("disabled", "disabled").attr("data-kt-indicator", "on");
+    disableSubmitButton();
 }
 
 function onModalSuccess(row) {
@@ -45,7 +49,7 @@ function onModalSuccess(row) {
 }
 
 function onModalComplete() {
-    $("body form :submit").removeAttr("disabled").removeAttr("data-kt-indicator");
+    $("body [type='submit']").removeAttr("disabled").removeAttr("data-kt-indicator");
 }
 
 // DataTables
@@ -144,6 +148,47 @@ $.each(headers, (i, e) => {
 });
 
 $(document).ready(function () {
+    // Disable Form Submit Button
+    $("form").on("submit", function () {
+        if ($(".js-tinymce").length > 0) {
+            $(".js-tinymce").each(function () {
+                var input = $(this);
+                var content = tinyMCE.get(input.attr("id")).getContent();
+                input.val(content);
+            });
+        }
+
+        var isValid = $(this).valid();
+        if (isValid)
+            disableSubmitButton();
+    });
+
+    // TinyMCE
+    if ($(".js-tinymce").length > 0) {
+        var options = { selector: ".js-tinymce", height: "465" };
+
+        if (KTThemeMode.getMode() === "dark") {
+            options["skin"] = "oxide-dark";
+            options["content_css"] = "dark";
+        }
+
+        tinymce.init(options);
+    }
+
+    // Select2
+    $(".js-select2").select2();
+    $('.js-select2').on('select2:select', function (e) {
+        $("form").validate().element("#" + $(this).attr("id"));
+    });
+
+    // Date Picker
+    $(".js-datepicker").daterangepicker({
+        singleDatePicker: true,
+        autoApply: true,
+        drops: "up",
+        maxDate: new Date()
+    });
+
     // SweetAlert
     var message = $("#Message").text();
     if (message !== '') {
@@ -151,7 +196,7 @@ $(document).ready(function () {
     }
 
     // DataTables
-     KTDatatables.init();
+    KTDatatables.init();
 
     // Handle Modal
     $("body").delegate(".js-render-modal", "click", function () {
