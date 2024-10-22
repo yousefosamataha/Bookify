@@ -1,5 +1,70 @@
-﻿@{
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+
+@{
     ViewData["Title"] = "Books";
 }
 
-<a class="btn btn-primary" asp-action="Create">Create</a>
+@section Styles {
+    <link rel="stylesheet" href="~/assets/plugins/custom/datatables/datatables.bundle.css" />
+}
+
+<!--begin::Alert-->
+<div class="alert bg-light-primary border border-primary border-3 border-dashed d-flex justify-content-between p-5 mb-10">
+    <div class="d-flex align-items-center">
+        <div class="symbol symbol-40px me-4">
+            <div class="symbol-label fs-2 fw-semibold">
+                <i class="ki-solid ki-book-open text-primary fs-2"></i>
+            </div>
+        </div>
+        <h5>Books</h5>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-sm btn-success">
+            <i class="ki-solid ki-plus fs-1"></i>
+            Add
+        </a>
+    </div>
+</div>
+<!--end::Alert-->
+
+<div class="card shadow-sm">
+    <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+        <div class="card-title">
+            <div class="d-flex align-items-center position-relative my-1">
+                <i class="ki-solid ki-magnifier fs-1 position-absolute ms-4"></i>
+                <input type="text" data-kt-filter="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search by title or author ..." />
+            </div>
+        </div>
+    </div>
+    <div class="card-body pt-0">
+        <div class="table-responsive">
+            <table id="Books" class="table table-row-dashed table-row-gray-300 gy-3 align-middle">
+                <thead>
+                    <tr class="fw-bold fs-6 text-gray-800">
+                        <th class="d-none"></th>
+                        <th>Book</th>
+                        <th>Publisher</th>
+                        <th>Publishing Date</th>
+                        <th>Hall</th>
+                        <th>Categories</th>
+                        <th>Rental</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" name="__RequestVerificationToken" value="@antiforgery.GetAndStoreTokens(Context).RequestToken" />
+
+@section Plugins {
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+}
+
+@section Scripts {
+    <script src="~/js/books.js" asp-append-version="true"></script>
+}

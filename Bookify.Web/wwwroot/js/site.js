@@ -61,6 +61,9 @@ var KTDatatables = function () {
         datatable = $(table).DataTable({
             "info": false,
             'pageLength': 5,
+            'drawCallback': function () {
+                KTMenu.createInstances();
+            }
         });
     }
 
@@ -267,15 +270,15 @@ $(document).ready(function () {
     });
 
     // Listen for draw event to reinitialize KTMenu
-    $(table).on('draw.dt', function () {
-        // Reinitialize KTMenu for dynamically added rows
-        $('[data-kt-menu="true"]').each(function () {
-            var menuElement = this;
-            if (KTMenu.getInstance(menuElement)) {
-                KTMenu.getInstance(menuElement).update(); // Update existing menu instance
-            } else {
-                KTMenu.createInstances(); // Initialize new menu instances
-            }
-        });
-    });
+    //$(table).on('draw.dt', function () {
+    //    // Reinitialize KTMenu for dynamically added rows
+    //    $('[data-kt-menu="true"]').each(function () {
+    //        var menuElement = this;
+    //        if (KTMenu.getInstance(menuElement)) {
+    //            KTMenu.getInstance(menuElement).update(); // Update existing menu instance
+    //        } else {
+    //            KTMenu.createInstances(); // Initialize new menu instances
+    //        }
+    //    });
+    //});
 });
