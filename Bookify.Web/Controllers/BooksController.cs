@@ -35,6 +35,21 @@ public class BooksController : Controller
         return View();
     }
 
+    public IActionResult Details(int id)
+    {
+        var book = _context.Books
+            .Include(b => b.Author)
+            .Include(b => b.Categories).ThenInclude(c => c.Category)
+            .FirstOrDefault(b => b.Id == id);
+
+        if(book is null)
+            return NotFound();
+
+        var viewModel = _mapper.Map<BookViewModel>(book);
+
+        return View(viewModel);
+    }
+
     public IActionResult Create()
     {
         return View("Form", PopulateViewModel());
@@ -104,7 +119,7 @@ public class BooksController : Controller
         _context.Add(book);
         _context.SaveChanges();
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Details), new { id = book.Id});
     } 
 
     public IActionResult Edit(int id)
@@ -199,7 +214,10 @@ public class BooksController : Controller
             //imagePublicId = result.PublicId;
         }
         else if (!string.IsNullOrEmpty(book.ImageUrl))
+        {
             model.ImageUrl = book.ImageUrl;
+            model.ImageThumbnailUrl = book.ImageThumbnailUrl;
+        }
 
         book = _mapper.Map(model, book);
         book.LastUpdatedOn = DateTime.Now;
@@ -211,7 +229,7 @@ public class BooksController : Controller
 
         _context.SaveChanges();
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Details), new { id = book.Id });
     }
 
     public IActionResult AllowItem(BookFormViewModel model)
