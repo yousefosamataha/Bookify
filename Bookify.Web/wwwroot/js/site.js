@@ -44,8 +44,6 @@ function onModalSuccess(row) {
 
     var newRow = $(row);
     datatable.row.add(newRow).draw();
-
-    // KTMenu.init();
 }
 
 function onModalComplete() {

@@ -37,7 +37,6 @@ public class BooksController : Controller
     }
 
     [HttpPost]
-    // [ValidateAntiForgeryToken]
     public IActionResult GetBooks()
     {
         var skip = int.Parse(Request.Form["start"]);
@@ -71,6 +70,7 @@ public class BooksController : Controller
     {
         var book = _context.Books
             .Include(b => b.Author)
+            .Include(b => b.Copies)
             .Include(b => b.Categories)
             .ThenInclude(c => c.Category)
             .FirstOrDefault(b => b.Id == id);

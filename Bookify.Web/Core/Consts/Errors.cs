@@ -8,4 +8,5 @@ public static class Errors
     public const string NotAllowedExtension = "Only .png, .jpg, .jpeg files are allowed!";
     public const string MaxSize = "File cannot be more than 2MB!";
     public const string NotAllowFutureDates = "Date cannot be in the future!";
+    public const string InvalidRange = "{0} should be between {1} and {2}!";
 }
