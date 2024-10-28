@@ -1,0 +1,66 @@
+﻿@model IEnumerable<UserViewModel>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/assets/plugins/custom/datatables/datatables.bundle.css" />
+}
+
+<!--begin::Alert-->
+<div class="alert bg-light-primary border border-primary border-3 border-dashed d-flex justify-content-between p-5 mb-10">
+    <div class="d-flex align-items-center">
+        <div class="symbol symbol-40px me-4">
+            <div class="symbol-label fs-2 fw-semibold">
+                <i class="ki-solid ki-profile-user text-primary fs-2"></i>
+            </div>
+        </div>
+        <h5>Users</h5>
+    </div>
+    <div>
+        <a href="JavaScript:;" class="btn btn-sm btn-success js-render-modal" data-title="Add Users" data-url="/Users/Create">
+            <i class="ki-solid ki-plus fs-1"></i>
+            Add
+        </a>
+    </div>
+</div>
+<!--end::Alert-->
+
+<div class="card shadow-sm">
+    <partial name="_DataTablesCardHeader" />
+    <div class="card-body pt-0">
+        <div class="table-responsive">
+            <table class="table table-row-dashed table-row-gray-300 gy-3 align-middle js-datatables" data-document-title="Users">
+                <thead>
+                    <tr class="fw-bold fs-6 text-gray-800">
+                        <th>Full Name</th>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Last Updated On</th>
+                        <th class="js-no-export">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <partial name="_UserRow" model="@user" />
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" name="__RequestVerificationToken" value="@antiforgery.GetAndStoreTokens(Context).RequestToken" />
+
+@section Plugins {
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

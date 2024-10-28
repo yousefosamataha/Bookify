@@ -51,16 +51,15 @@ public class BooksController : Controller
                                     .Include(b => b.Categories)
                                     .ThenInclude(c => c.Category);
 
-        if (!string.IsNullOrEmpty(searchValue))
+        if (!string.IsNullOrWhiteSpace(searchValue))
             books = books.Where(b => b.Title.Contains(searchValue) || b.Author!.Name.Contains(searchValue));
 
         books = books.OrderBy($"{(!string.IsNullOrEmpty(sortColumn) ? sortColumn : "Id")} {sortColumnDirection}");
 
         var data = books.Skip(skip).Take(pageSize).ToList();
         var recordsTotal = books.Count();
-
-        var mappedData = _mapper.Map<IEnumerable<BookViewModel>>(data);
-
+        var mappedData = _mapper.Map<IEnumerable<BookViewModel>>(data); 
+        
         var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = mappedData };
 
         return Ok(jsonData);

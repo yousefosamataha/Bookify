@@ -120,7 +120,9 @@
 					<!--end::Menu item-->
 					<!--begin::Menu item-->
 					<div class="menu-item px-5">
-						<a href="authentication/layouts/corporate/sign-in.html" class="menu-link px-5">Sign Out</a>
+						<form id="SignOutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/">
+							<a class="menu-link px-5" onclick="document.getElementById('SignOutForm').submit();">Sign Out</a>
+						</form>
 					</div>
 					<!--end::Menu item-->
 				</div>

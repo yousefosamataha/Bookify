@@ -32,5 +32,8 @@ public class MappingProfile : Profile
         CreateMap<Category, SelectListItem>()
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
+
+        // Users
+        CreateMap<ApplicationUser, UserViewModel>();
     }
 }
