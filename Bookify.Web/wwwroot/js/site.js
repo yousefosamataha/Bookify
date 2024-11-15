@@ -18,7 +18,7 @@ function showErrorMessage(message = "Something went wrong!") {
     Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: message,
+        text: message.responseText !== undefined ? message.responseText : message,
         customClass: {
             confirmButton: "btn btn-primary"
         }
@@ -48,6 +48,14 @@ function onModalSuccess(row) {
 
 function onModalComplete() {
     $("body [type='submit']").removeAttr("disabled").removeAttr("data-kt-indicator");
+}
+
+// Select2
+function applySelect2() {
+    $(".js-select2").select2();
+    $('.js-select2').on('select2:select', function (e) {
+        $("form").not("#SignOutForm").validate().element("#" + $(this).attr("id"));
+    });
 }
 
 // DataTables
@@ -177,10 +185,7 @@ $(document).ready(function () {
     }
 
     // Select2
-    $(".js-select2").select2();
-    $('.js-select2').on('select2:select', function (e) {
-        $("form").validate().element("#" + $(this).attr("id"));
-    });
+    applySelect2();
 
     // Date Picker
     $(".js-datepicker").daterangepicker({
@@ -215,11 +220,13 @@ $(document).ready(function () {
             success: function (form) {
                 modal.find(".modal-body").html(form);
                 $.validator.unobtrusive.parse(modal);
+                applySelect2()
             },
             error: function () {
                 showErrorMessage();
             }
         });
+
         modal.modal("show");
     });
 
@@ -256,6 +263,41 @@ $(document).ready(function () {
                             row.on('animationend', (e) => {
                                 $(e.target).removeClass("animate__animated animate__fadeIn");
                             });
+                            showSuccessMessage();
+                        },
+                        error: function () {
+                            showErrorMessage();
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    // Handle Confirm
+    $("body").delegate(".js-confirm", "click", function () {
+        var btn = $(this);
+
+        bootbox.confirm({
+            message: btn.data("message"),
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-secondary'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post({
+                        url: btn.data("url"),
+                        data: {
+                            "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (data) {
                             showSuccessMessage();
                         },
                         error: function () {

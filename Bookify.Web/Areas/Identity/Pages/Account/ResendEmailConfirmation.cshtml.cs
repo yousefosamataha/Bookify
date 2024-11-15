@@ -2,16 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Bookify.Web.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -22,11 +16,13 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
+        private readonly IEmailBodyBuilder _emailBodyBuilder;
 
-        public ResendEmailConfirmationModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+        public ResendEmailConfirmationModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender, IEmailBodyBuilder emailBodyBuilder)
         {
             _userManager = userManager;
             _emailSender = emailSender;
+            _emailBodyBuilder = emailBodyBuilder;
         }
 
         /// <summary>
@@ -47,12 +43,16 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Required]
-            [EmailAddress]
-            public string Email { get; set; }
+            // [EmailAddress]
+            public string UserName { get; set; }
         }
 
-        public void OnGet()
+        public void OnGet(string userName)
         {
+            Input = new()
+            {
+                UserName = userName,
+            };
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -62,7 +62,8 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
                 return Page();
             }
 
-            var user = await _userManager.FindByEmailAsync(Input.Email);
+            var userName = Input.UserName.ToUpper();
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => (u.NormalizedEmail == userName || u.NormalizedUserName == userName) && !u.IsDeleted);
             if (user == null)
             {
                 ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
@@ -75,12 +76,17 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
             var callbackUrl = Url.Page(
                 "/Account/ConfirmEmail",
                 pageHandler: null,
-                values: new { userId = userId, code = code },
+                values: new { userId = user.Id, code },
                 protocol: Request.Scheme);
-            await _emailSender.SendEmailAsync(
-                Input.Email,
-                "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+            var body = _emailBodyBuilder.GetEmailBody(
+                "https://res.cloudinary.com/dl9njiuax/image/upload/v1731485269/rtxusjse5con6f1uxldx.png",
+                $"Hey {user.FullName}, thanks for joining us!",
+                "Please confirm your email",
+                HtmlEncoder.Default.Encode(callbackUrl!),
+                "Active Account!");
+
+            await _emailSender.SendEmailAsync(user.Email, "Confirm your email", body);
 
             ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
             return Page();

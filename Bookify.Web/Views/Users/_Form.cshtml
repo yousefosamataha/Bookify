@@ -1,1 +1,68 @@
-﻿
+﻿@model UserFormViewModel
+
+<form asp-action="@(!string.IsNullOrEmpty(Model?.Id) ? "Edit" : "Create")"
+      data-ajax="true"
+      data-ajax-method="post"
+      data-ajax-begin="onModalBegin"
+      data-ajax-success="onModalSuccess"
+      data-ajax-failure="showErrorMessage"
+      data-ajax-complete="onModalComplete">
+    @if (!string.IsNullOrEmpty(Model?.Id))
+    {
+        <input type="hidden" asp-for="Id" />
+    }
+
+    <!--begin::Input group-->
+    <div class="form-floating mb-7">
+        <input type="text" class="form-control form-control-solid" asp-for="FullName" placeholder="Full Name" autocomplete="off" />
+        <label asp-for="FullName"></label>
+        <span class="text-danger" asp-validation-for="FullName"></span>
+    </div>
+    <!--end::Input group-->
+    <!--begin::Input group-->
+    <div class="form-floating mb-7">
+        <input type="text" class="form-control form-control-solid" asp-for="UserName" placeholder="User Name" autocomplete="off" />
+        <label asp-for="UserName"></label>
+        <span class="text-danger" asp-validation-for="UserName"></span>
+    </div>
+    <!--end::Input group-->
+    <!--begin::Input group-->
+    <div class="form-floating mb-7">
+        <input type="email" class="form-control form-control-solid" asp-for="Email" placeholder="Email" autocomplete="off" />
+        <label asp-for="Email"></label>
+        <span class="text-danger" asp-validation-for="Email"></span>
+    </div>
+    <!--end::Input group-->
+
+    <div class="mb-7">
+        <!--begin::Input group-->
+        <div class="form-floating form-control-solid-bg rounded">
+            <select class="form-select form-select-solid js-select2" asp-for="SelectedRoles" asp-items="@Model.Roles" data-placeholder="Select Roles">
+                <option></option>
+            </select>
+            <label asp-for="SelectedRoles"></label>
+        </div>
+        <!--end::Input group-->
+        <span class="text-danger d-block" asp-validation-for="SelectedRoles"></span>
+    </div>
+
+    @if (string.IsNullOrEmpty(Model?.Id))
+    {
+        <!--begin::Input group-->
+        <div class="form-floating mb-7">
+            <input type="password" class="form-control form-control-solid" asp-for="Password" placeholder="Password" />
+            <label asp-for="Password"></label>
+            <span class="text-danger" asp-validation-for="Password"></span>
+        </div>
+        <!--end::Input group-->
+        <!--begin::Input group-->
+        <div class="form-floating mb-7">
+            <input type="password" class="form-control form-control-solid" asp-for="ConfirmPassword" placeholder="Confirm Password" />
+            <label asp-for="ConfirmPassword"></label>
+            <span class="text-danger" asp-validation-for="ConfirmPassword"></span>
+        </div>
+        <!--end::Input group-->
+    }
+
+    <partial name="_ModelFooter" />
+</form>

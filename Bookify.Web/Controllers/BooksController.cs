@@ -5,23 +5,25 @@ using System.Linq.Dynamic.Core;
 
 namespace Bookify.Web.Controllers;
 
+[Authorize(Roles = AppRoles.Archive)]
 public class BooksController : Controller
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly Cloudinary _cloudinary;
+    private readonly IImageService _imageService;
 
     private List<string> _allowedExtensions = new() { ".jpg", ".jpeg", ".png" };
     private int _maxAllowedSize = 2097152;
 
-    public BooksController(ApplicationDbContext context, IMapper mapper, IWebHostEnvironment webHostEnvironment, IOptions<CloudinarySettings> cloudinary)
+    public BooksController(ApplicationDbContext context, IMapper mapper, IWebHostEnvironment webHostEnvironment, IOptions<CloudinarySettings> cloudinary, IImageService imageService)
     {
         _context = context;
         _mapper = mapper;
         _webHostEnvironment = webHostEnvironment;
 
-        Account account = new ()
+        Account account = new()
         {
             Cloud = cloudinary.Value.Cloud,
             ApiKey = cloudinary.Value.ApiKey,
@@ -29,6 +31,7 @@ public class BooksController : Controller
         };
 
         _cloudinary = new Cloudinary(account);
+        _imageService = imageService;
     }
 
     public IActionResult Index()
@@ -98,37 +101,17 @@ public class BooksController : Controller
 
         if (model.Image is not null)
         {
-            var extension = Path.GetExtension(model.Image.FileName);
+            var imageName = $"{Guid.NewGuid()}{Path.GetExtension(model.Image.FileName)}";
+            var (isUploaded, errorMessage) = await _imageService.UploadAsync(model.Image, imageName, "/images/books", true);
 
-            if (!_allowedExtensions.Contains(extension))
+            if (!isUploaded)
             {
-                ModelState.AddModelError(nameof(model.Image), Errors.NotAllowedExtension);
+                ModelState.AddModelError(nameof(model.Image), errorMessage!);
                 return View("Form", PopulateViewModel(model));
             }
-
-            if (model.Image.Length > _maxAllowedSize)
-            {
-                ModelState.AddModelError(nameof(model.Image), Errors.MaxSize);
-                return View("Form", PopulateViewModel(model));
-            }
-
-            var imageName = $"{Guid.NewGuid()}{extension}";
-
-            var path = Path.Combine($"{_webHostEnvironment.WebRootPath}/images/books", imageName);
-            var thumbPath = Path.Combine($"{_webHostEnvironment.WebRootPath}/images/books/thumb", imageName);
-
-            using var stream = System.IO.File.Create(path);
-            await model.Image.CopyToAsync(stream);
-            stream.Dispose();
 
             book.ImageUrl = $"/images/books/{imageName}";
             book.ImageThumbnailUrl = $"/images/books/thumb/{imageName}";
-
-            using var image = Image.Load(model.Image.OpenReadStream());
-            var ratio = (float)image.Width / 200;
-            var height = image.Height / ratio;
-            image.Mutate(i => i.Resize(width: 200, height: (int)height));
-            image.Save(thumbPath);
 
             //using var stream = model.Image.OpenReadStream();
 
@@ -144,6 +127,8 @@ public class BooksController : Controller
             //book.ImageThumbnailUrl = GetThumbnailUrl(book.ImageUrl);
             //book.ImagePublicId = result.PublicId;
         }
+
+        book.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
         foreach (var category in model.SelectedCategories)
             book.Categories.Add(new BookCategory { CategoryId = category });
@@ -175,7 +160,10 @@ public class BooksController : Controller
         if (!ModelState.IsValid)
             return View("Form", PopulateViewModel(model));
 
-        var book = _context.Books.Include(b => b.Categories).SingleOrDefault(b => b.Id == model.Id);
+        var book = _context.Books
+            .Include(b => b.Categories)
+            .Include(b => b.Copies)
+            .SingleOrDefault(b => b.Id == model.Id);
 
         if (book is null)
             return NotFound();
@@ -187,50 +175,23 @@ public class BooksController : Controller
             // Delete Old Image
             if (!string.IsNullOrEmpty(book.ImageUrl))
             {
-                var oldImagePath = $"{_webHostEnvironment.WebRootPath}{book.ImageUrl}";
-                var oldThumbPath = $"{_webHostEnvironment.WebRootPath}{book.ImageThumbnailUrl}";
-
-                if (System.IO.File.Exists(oldImagePath))
-                    System.IO.File.Delete(oldImagePath);
-
-                if (System.IO.File.Exists(oldThumbPath))
-                    System.IO.File.Delete(oldThumbPath);
+                _imageService.Delete(book.ImageUrl, book.ImageThumbnailUrl);
 
                 //await _cloudinary.DeleteResourcesAsync(book.ImagePublicId);
             }
 
             // Add New Image
-            var extension = Path.GetExtension(model.Image.FileName);
+            var imageName = $"{Guid.NewGuid()}{Path.GetExtension(model.Image.FileName)}";
+            var (isUploaded, errorMessage) = await _imageService.UploadAsync(model.Image, imageName, "/images/books", true);
 
-            if (!_allowedExtensions.Contains(extension))
+            if (!isUploaded)
             {
-                ModelState.AddModelError(nameof(model.Image), Errors.NotAllowedExtension);
+                ModelState.AddModelError(nameof(model.Image), errorMessage!);
                 return View("Form", PopulateViewModel(model));
             }
-
-            if (model.Image.Length > _maxAllowedSize)
-            {
-                ModelState.AddModelError(nameof(model.Image), Errors.MaxSize);
-                return View("Form", PopulateViewModel(model));
-            }
-
-            var imageName = $"{Guid.NewGuid()}{extension}";
-
-            var path = Path.Combine($"{_webHostEnvironment.WebRootPath}/images/books", imageName);
-            var thumbPath = Path.Combine($"{_webHostEnvironment.WebRootPath}/images/books/thumb", imageName);
-
-            using var stream = System.IO.File.Create(path);
-            await model.Image.CopyToAsync(stream);
-            stream.Dispose();
 
             model.ImageUrl = $"/images/books/{imageName}";
             model.ImageThumbnailUrl = $"/images/books/thumb/{imageName}";
-
-            using var image = Image.Load(model.Image.OpenReadStream());
-            var ratio = (float)image.Width / 200;
-            var height = image.Height / ratio;
-            image.Mutate(i => i.Resize(width: 200, height: (int)height));
-            image.Save(thumbPath);
 
             //using var stream = model.Image.OpenReadStream();
 
@@ -252,12 +213,17 @@ public class BooksController : Controller
         }
 
         book = _mapper.Map(model, book);
+        book.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         book.LastUpdatedOn = DateTime.Now;
         //book.ImageThumbnailUrl = GetThumbnailUrl(book.ImageUrl!);
         //book.ImagePublicId = imagePublicId;
 
         foreach (var category in model.SelectedCategories)
             book.Categories.Add(new BookCategory { CategoryId = category });
+
+        if (!model.IsAvailableForRental)
+            foreach (var copy in book.Copies)
+                copy.IsAvailableForRental = false;
 
         _context.SaveChanges();
 
@@ -274,6 +240,7 @@ public class BooksController : Controller
             return NotFound();
 
         book.IsDeleted = !book.IsDeleted;
+        book.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         book.LastUpdatedOn = DateTime.Now;
         _context.SaveChanges();
 

@@ -17,54 +17,60 @@
 					<!--end:Menu link-->
 				</div>
 				<!--end:Menu item-->
-				<!--begin:Menu item-->
-				<div class="menu-item">
-					<!--begin:Menu link-->
-					<a class="menu-link" active-when="Categories" asp-controller="Categories" asp-action="Index">
-						<span class="menu-icon">
-							<i class="ki-solid ki-abstract-26 fs-2"></i>
-						</span>
-						<span class="menu-title">Categories</span>
-					</a>
-					<!--end:Menu link-->
-				</div>
-				<!--end:Menu item-->
-				<!--begin:Menu item-->
-				<div class="menu-item">
-					<!--begin:Menu link-->
-					<a class="menu-link" active-when="Authors" asp-controller="Authors" asp-action="Index">
-						<span class="menu-icon">
-							<i class="ki-solid ki-address-book fs-2"></i>
-						</span>
-						<span class="menu-title">Authors</span>
-					</a>
-					<!--end:Menu link-->
-				</div>
-				<!--end:Menu item-->
-				<!--begin:Menu item-->
-				<div class="menu-item">
-					<!--begin:Menu link-->
-					<a class="menu-link" active-when="Books" asp-controller="Books" asp-action="Index">
-						<span class="menu-icon">
-							<i class="ki-solid ki-book-open fs-2"></i>
-						</span>
-						<span class="menu-title">Books</span>
-					</a>
-					<!--end:Menu link-->
-				</div>
-				<!--end:Menu item-->
-				<!--begin:Menu item-->
-				<div class="menu-item">
-					<!--begin:Menu link-->
-					<a class="menu-link" active-when="Users" asp-controller="Users" asp-action="Index">
-						<span class="menu-icon">
-							<i class="ki-solid ki-profile-user fs-2"></i>
-						</span>
-						<span class="menu-title">Users</span>
-					</a>
-					<!--end:Menu link-->
-				</div>
-				<!--end:Menu item-->
+				@if (User.IsInRole(AppRoles.Archive))
+				{
+					<!--begin:Menu item-->
+					<div class="menu-item">
+						<!--begin:Menu link-->
+						<a class="menu-link" active-when="Categories" asp-controller="Categories" asp-action="Index">
+							<span class="menu-icon">
+								<i class="ki-solid ki-abstract-26 fs-2"></i>
+							</span>
+							<span class="menu-title">Categories</span>
+						</a>
+						<!--end:Menu link-->
+					</div>
+					<!--end:Menu item-->
+					<!--begin:Menu item-->
+					<div class="menu-item">
+						<!--begin:Menu link-->
+						<a class="menu-link" active-when="Authors" asp-controller="Authors" asp-action="Index">
+							<span class="menu-icon">
+								<i class="ki-solid ki-address-book fs-2"></i>
+							</span>
+							<span class="menu-title">Authors</span>
+						</a>
+						<!--end:Menu link-->
+					</div>
+					<!--end:Menu item-->
+					<!--begin:Menu item-->
+					<div class="menu-item">
+						<!--begin:Menu link-->
+						<a class="menu-link" active-when="Books" asp-controller="Books" asp-action="Index">
+							<span class="menu-icon">
+								<i class="ki-solid ki-book-open fs-2"></i>
+							</span>
+							<span class="menu-title">Books</span>
+						</a>
+						<!--end:Menu link-->
+					</div>
+					<!--end:Menu item-->
+				}
+				@if (User.IsInRole(AppRoles.Admin))
+				{
+					<!--begin:Menu item-->
+					<div class="menu-item">
+						<!--begin:Menu link-->
+						<a class="menu-link" active-when="Users" asp-controller="Users" asp-action="Index">
+							<span class="menu-icon">
+								<i class="ki-solid ki-profile-user fs-2"></i>
+							</span>
+							<span class="menu-title">Users</span>
+						</a>
+						<!--end:Menu link-->
+					</div>
+					<!--end:Menu item-->
+				}
 			</div>
 			<!--end::Menu-->
 		</div>
