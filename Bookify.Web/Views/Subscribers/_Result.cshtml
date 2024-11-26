@@ -1,0 +1,53 @@
+﻿@model SubscriberSearchResultViewModel
+
+@if(Model is null)
+{
+    <div class="alert bg-light-warning border border-warning border-3 border-dashed d-flex flex-column flex-sm-row w-100 p-5">
+        <!--begin::Icon-->
+        <i class="ki-solid ki-notification-bing fs-2hx text-warning me-4 mb-5 mb-sm-0"></i>
+        <!--end::Icon-->
+        <!--begin::Content-->
+        <div class="d-flex flex-column pe-0 pe-sm-10">
+            <h5 class="mb-1">No subscribers has been found!</h5>
+            <span>If you want to add new subscriber, <a asp-action="Create">click here.</a></span>
+        </div>
+        <!--end::Content-->
+    </div>
+}
+else
+{
+	<!--begin::Row-->
+	<div class="row">
+		<!--begin::Col-->
+		<div class="col-md-6 col-xxl-4">
+			<!--begin::Card-->
+			<div class="card">
+				<!--begin::Card body-->
+				<div class="card-body d-flex p-9">
+					<!--begin::Avatar-->
+					<div class="symbol symbol-65px symbol-circle me-5">
+						<img src="@Model.ImageThumbnailUrl" alt="image" />
+					</div>
+					<!--end::Avatar-->
+					<div class="d-flex flex-column justify-content-center">
+						<!--begin::Name-->
+						<a asp-action="Details" asp-route-id="@Model.Id" class="fs-4 text-gray-800 text-hover-primary fw-bold mb-0">@Model.FullName</a>
+						<!--end::Name-->
+						<!--begin::Position-->
+						<div class="fw-semibold text-gray-500">@Model.Email</div>
+						<!--end::Position-->
+					</div>
+					<div class="d-flex align-items-center" style="margin-left: auto;">
+						<a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">
+							View
+						</a>
+					</div>
+				</div>
+				<!--end::Card body-->
+			</div>
+			<!--end::Card-->
+		</div>
+		<!--end::Col-->
+	</div>
+	<!--end::Row-->
+}
