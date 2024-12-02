@@ -4,6 +4,8 @@ public class SubscriberViewModel
 {
     public int Id { get; set; }
 
+    public string? Key { get; set; }
+
     public string? FullName { get; set; }
 
     public DateTime DateOfBirth { get; set; }
@@ -29,4 +31,6 @@ public class SubscriberViewModel
     public bool IsBlackListed { get; set; }
 
     public DateTime CreatedOn { get; set; }
+
+    public IEnumerable<SubscriptionViewModel> Subscriptions { get; set; } = new List<SubscriptionViewModel>();
 }

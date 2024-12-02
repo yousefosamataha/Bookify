@@ -58,5 +58,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
             .ForMember(dest => dest.Governorate, opt => opt.MapFrom(src => src.Governorate!.Name))
             .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Area!.Name));
+
+        // Subscription
+        CreateMap<Subscription, SubscriptionViewModel>();
     }
 }

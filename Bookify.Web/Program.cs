@@ -1,89 +1,97 @@
 using Bookify.Web.Core.Mapping;
 using Bookify.Web.Helpers;
 using Bookify.Web.Seeds;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-
-// Identity Configuration
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultUI()
-    .AddDefaultTokenProviders();
-builder.Services.Configure<IdentityOptions>(options => 
+WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 {
-    options.Password.RequiredLength = 8;
-    options.User.RequireUniqueEmail = true;
-});
+    // Add services to the container.
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(connectionString));
 
-// SecurityStamp Configuration
-builder.Services.Configure<SecurityStampValidatorOptions>(opt => opt.ValidationInterval =  TimeSpan.Zero);
+    // Identity Configuration
+    builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultUI()
+        .AddDefaultTokenProviders();
+    builder.Services.Configure<IdentityOptions>(options =>
+    {
+        options.Password.RequiredLength = 8;
+        options.User.RequireUniqueEmail = true;
+    });
 
-// AutoMapper Configuration
-var mapperConfig = new MapperConfiguration(mc => mc.AddProfile(new MappingProfile()));
-IMapper mapper = mapperConfig.CreateMapper();
-builder.Services.AddSingleton(mapper);
+    // SecurityStamp Configuration
+    builder.Services.Configure<SecurityStampValidatorOptions>(opt => opt.ValidationInterval = TimeSpan.Zero);
 
-// ExpressiveAnnotations
-builder.Services.AddExpressiveAnnotations();
+    // AutoMapper Configuration
+    var mapperConfig = new MapperConfiguration(mc => mc.AddProfile(new MappingProfile()));
+    IMapper mapper = mapperConfig.CreateMapper();
+    builder.Services.AddSingleton(mapper);
 
-// Cloudinary Configuration
-builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection(nameof(CloudinarySettings)));
+    // ExpressiveAnnotations
+    builder.Services.AddExpressiveAnnotations();
 
-// Add User Claims
-builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
+    // Cloudinary Configuration
+    builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection(nameof(CloudinarySettings)));
 
-// Add Image Service
-builder.Services.AddTransient<IImageService, ImageService>();
+    // Add User Claims
+    builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
 
-// Email Configuration & Add Email Service & Add Email Body Builder Service
-builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
-builder.Services.AddTransient<IEmailSender, EmailSender>();
-builder.Services.AddTransient<IEmailBodyBuilder, EmailBodyBuilder>();
+    // Add Image Service
+    builder.Services.AddTransient<IImageService, ImageService>();
 
-builder.Services.AddControllersWithViews();
+    // Email Configuration & Add Email Service & Add Email Body Builder Service
+    builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
+    builder.Services.AddTransient<IEmailSender, EmailSender>();
+    builder.Services.AddTransient<IEmailBodyBuilder, EmailBodyBuilder>();
 
-var app = builder.Build();
+    // Add Data Protection Service
+    builder.Services.AddDataProtection().SetApplicationName(nameof(Bookify));
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseMigrationsEndPoint();
-}
-else
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    builder.Services.AddControllersWithViews();
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
 
-app.UseRouting();
+WebApplication? app = builder.Build();
+{
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseMigrationsEndPoint();
+    }
+    else
+    {
+        app.UseExceptionHandler("/Home/Error");
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
+    }
 
-app.UseAuthentication();
-app.UseAuthorization();
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
 
-var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
-using var scope = scopeFactory.CreateScope();
+    app.UseRouting();
 
-var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    app.UseAuthentication();
+    app.UseAuthorization();
 
-await DefaultRoles.SeedRolesAsync(roleManager);
-await DefaultUsers.SeedAdminUserAsync(userManager);
+    var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+    using var scope = scopeFactory.CreateScope();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-app.Run();
+    await DefaultRoles.SeedRolesAsync(roleManager);
+    await DefaultUsers.SeedAdminUserAsync(userManager);
+
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+    app.MapRazorPages();
+
+    app.Run();
+}
+

@@ -5,13 +5,13 @@
 
 <div class="card shadow-sm">
     <div class="card-header">
-        <h3 class="card-title">@(Model.Id.Equals(0) ? "Add" : "Edit") Subscriber</h3>
+        <h3 class="card-title">@(string.IsNullOrEmpty(Model.Key) ? "Add" : "Edit") Subscriber</h3>
     </div>
     <div class="card-body">
         <form id="Form" method="post" asp-controller="Subscribers" enctype="multipart/form-data">
-            @if (Model.Id > 0)
+            @if (!string.IsNullOrEmpty(Model.Key))
             {
-                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Key" />
             }
             <!--begin::Input group-->
             <div class="row mb-6">
@@ -48,7 +48,7 @@
                     <!--end::Image input-->
                     <!--begin::Hint-->
                     <div class="form-text">Allowed file types: png, jpg, jpeg and cannot be more that 2 MB.</div>
-                    <span asp-validation-for="Image" class="text-danger"></span>
+                    <span asp-validation-for="Image" class="text-danger d-block"></span>
                     <!--end::Hint-->
                 </div>
                 <!--end::Col-->
